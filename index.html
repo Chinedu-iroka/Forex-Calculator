@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Risk Calculator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .calculator-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 140, 255, 0.15);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .header .logo {
+            margin-right: 15px;
+        }
+        .logo-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0, 140, 255, 0.7);
+        }
+        h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: #0078d4;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .subtitle {
+            color: #4b5563;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #374151;
+        }
+        .input-group {
+            display: flex;
+            gap: 16px;
+        }
+        .input-group .form-group {
+            flex: 1;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+        }
+        .prefix-input {
+            position: relative;
+        }
+        .prefix-input span {
+            position: absolute;
+            left: 12px;
+            top: 9px;
+            color: #6b7280;
+        }
+        .prefix-input input {
+            padding-left: 24px;
+        }
+        .results {
+            background-color: #f0f9ff;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 20px;
+            border: 1px solid #e0f2fe;
+        }
+        .results h2 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #0078d4;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .result-label {
+            color: #4b5563;
+            font-size: 14px;
+        }
+        .result-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .result-value.loss {
+            color: #ef4444;
+        }
+        .result-value.profit {
+            color: #10b981;
+        }
+        .result-value.ratio {
+            color: #f59e0b;
+        }
+        .risk-bar {
+            margin: 8px 0 16px;
+            height: 4px;
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 2px;
+            position: relative;
+        }
+        .risk-bar-fill {
+            position: absolute;
+            height: 100%;
+            background-color: #0078d4;
+            border-radius: 2px;
+            width: 0%;
+        }
+        .calculate-btn {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            width: 100%;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+        .calculate-btn:hover {
+            background-color: #006cbe;
+        }
+        .disclaimer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        optgroup {
+            font-weight: 600;
+            color: #0078d4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <div class="header">
+                <div class="logo">
+                    <img src="images/Logo.jpeg" alt="Logo" class="logo-img">
+                </div>
+                <h1>BIGWHALES FOREX RISK CALCULATOR</h1>
+            </div>
+            <p class="subtitle">Calculate your risk, potential profit, and risk-to-reward ratio</p>
+            
+            <form id="calculatorForm">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="currencyPair">Currency Pair</label>
+                        <select id="currencyPair">
+                            <!-- Major Currency Pairs -->
+                            <optgroup label="Major Currency Pairs">
+                                <option value="EUR/USD">EUR/USD</option>
+                                <option value="GBP/USD">GBP/USD</option>
+                                <option value="USD/JPY">USD/JPY</option>
+                                <option value="USD/CHF">USD/CHF</option>
+                                <option value="AUD/USD">AUD/USD</option>
+                                <option value="USD/CAD">USD/CAD</option>
+                                <option value="NZD/USD">NZD/USD</option>
+                            </optgroup>
+                            
+                            <!-- Minor Currency Pairs -->
+                            <optgroup label="Minor Currency Pairs">
+                                <option value="EUR/GBP">EUR/GBP</option>
+                                <option value="EUR/AUD">EUR/AUD</option>
+                                <option value="GBP/JPY">GBP/JPY</option>
+                                <option value="EUR/JPY">EUR/JPY</option>
+                                <option value="EUR/CHF">EUR/CHF</option>
+                                <option value="AUD/JPY">AUD/JPY</option>
+                                <option value="AUD/NZD">AUD/NZD</option>
+                                <option value="CAD/JPY">CAD/JPY</option>
+                                <option value="CHF/JPY">CHF/JPY</option>
+                                <option value="GBP/CAD">GBP/CAD</option>
+                                <option value="GBP/CHF">GBP/CHF</option>
+                                <option value="GBP/AUD">GBP/AUD</option>
+                                <option value="GBP/NZD">GBP/NZD</option>
+                                <option value="NZD/JPY">NZD/JPY</option>
+                            </optgroup>
+                            
+                            <!-- Exotic Currency Pairs -->
+                            <optgroup label="Exotic Currency Pairs">
+                                <option value="USD/SGD">USD/SGD</option>
+                                <option value="USD/HKD">USD/HKD</option>
+                                <option value="USD/TRY">USD/TRY</option>
+                                <option value="USD/ZAR">USD/ZAR</option>
+                                <option value="USD/MXN">USD/MXN</option>
+                                <option value="USD/INR">USD/INR</option>
+                                <option value="USD/CNH">USD/CNH</option>
+                                <option value="USD/RUB">USD/RUB</option>
+                                <option value="EUR/TRY">EUR/TRY</option>
+                                <option value="EUR/ZAR">EUR/ZAR</option>
+                                <option value="EUR/NOK">EUR/NOK</option>
+                                <option value="EUR/SEK">EUR/SEK</option>
+                            </optgroup>
+                            
+                            <!-- Commodities -->
+                            <optgroup label="Commodities">
+                                <option value="XAU/USD">Gold (XAU/USD)</option>
+                                <option value="XAG/USD">Silver (XAG/USD)</option>
+                                <option value="XPT/USD">Platinum (XPT/USD)</option>
+                                <option value="XPD/USD">Palladium (XPD/USD)</option>
+                                <option value="XBRUSD">Brent Crude Oil</option>
+                                <option value="XTIUSD">WTI Crude Oil</option>
+                                <option value="XNGUSD">Natural Gas</option>
+                                <option value="XCUUSD">Copper</option>
+                            </optgroup>
+                            
+                            <!-- Indices -->
+                            <optgroup label="Indices">
+                                <option value="US30">Dow Jones (US30)</option>
+                                <option value="SPX500">S&P 500</option>
+                                <option value="NAS100">NASDAQ 100</option>
+                                <option value="UK100">FTSE 100</option>
+                                <option value="GER40">DAX 40</option>
+                                <option value="FRA40">CAC 40</option>
+                                <option value="AUS200">ASX 200</option>
+                                <option value="JPN225">Nikkei 225</option>
+                                <option value="HK50">Hang Seng</option>
+                                <option value="EU50">Euro Stoxx 50</option>
+                            </optgroup>
+                            
+                            <!-- Cryptocurrencies -->
+                            <optgroup label="Cryptocurrencies">
+                                <option value="BTC/USD">Bitcoin (BTC/USD)</option>
+                                <option value="ETH/USD">Ethereum (ETH/USD)</option>
+                                <option value="XRP/USD">Ripple (XRP/USD)</option>
+                                <option value="LTC/USD">Litecoin (LTC/USD)</option>
+                                <option value="BCH/USD">Bitcoin Cash (BCH/USD)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="accountSize">Account Size</label>
+                        <div class="prefix-input">
+                            <span>$</span>
+                            <input type="number" id="accountSize" value="10000" min="0" step="1">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lotSize">Lot Size</label>
+                    <input type="number" id="lotSize" value="0.1" min="0.01" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="entryPrice">Entry Price</label>
+                        <input type="number" id="entryPrice" value="1.10000" min="0" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="stopLoss">Stop Loss</label>
+                        <input type="number" id="stopLoss" value="1.09500" min="0" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="takeProfit">Take Profit</label>
+                        <input type="number" id="takeProfit" value="1.11000" min="0" step="0.00001">
+                    </div>
+                </div>
+                
+                <div class="results">
+                    <h2>Risk Analysis</h2>
+                    <div class="result-row">
+                        <span class="result-label">Stop Loss (Pips)</span>
+                        <span class="result-value loss" id="stopLossPips">0.0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Take Profit (Pips)</span>
+                        <span class="result-value profit" id="takeProfitPips">0.0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Potential Loss</span>
+                        <span class="result-value loss" id="potentialLoss">$0.00</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Potential Profit</span>
+                        <span class="result-value profit" id="potentialProfit">$0.00</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Risk Percentage</span>
+                        <span class="result-value" id="riskPercentage">0.00%</span>
+                    </div>
+                    <div class="risk-bar">
+                        <div class="risk-bar-fill" id="riskBar"></div>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Risk-to-Reward Ratio</span>
+                        <span class="result-value ratio" id="riskRewardRatio">1:0.00</span>
+                    </div>
+                </div>
+                
+                <button type="button" id="calculateBtn" class="calculate-btn">Calculate Risk</button>
+            </form>
+        </div>
+        
+        <p class="disclaimer">Always trade responsibly. Never risk more than you can afford to lose.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            calculateBtn.addEventListener('click', calculateRisk);
+            
+            // Initial calculation
+            calculateRisk();
+            
+            // Add event listeners to all inputs for live updates
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', calculateRisk);
+                input.addEventListener('input', calculateRisk);
+            });
+        });
+        
+        function calculateRisk() {
+            // Get input values
+            const currencyPair = document.getElementById('currencyPair').value;
+            const accountSize = parseFloat(document.getElementById('accountSize').value) || 0;
+            const lotSize = parseFloat(document.getElementById('lotSize').value) || 0;
+            const entryPrice = parseFloat(document.getElementById('entryPrice').value) || 0;
+            const stopLoss = parseFloat(document.getElementById('stopLoss').value) || 0;
+            const takeProfit = parseFloat(document.getElementById('takeProfit').value) || 0;
+            
+            // Determine pip value based on instrument type
+            let pipMultiplier = 10000; // Default for most forex pairs (4 decimal places)
+            let tickValue = 10; // Default dollars per pip for 1 standard lot
+            
+            // Adjust pip multiplier and tick value based on instrument
+            if (currencyPair.includes('JPY')) {
+                pipMultiplier = 100; // JPY pairs have 2 decimal places
+            } else if (currencyPair.startsWith('XAU') || currencyPair.startsWith('XAG') || 
+                       currencyPair.startsWith('XPT') || currencyPair.startsWith('XPD')) {
+                // Gold, Silver, Platinum, Palladium - typically 2 decimal places
+                pipMultiplier = 100;
+                tickValue = 10; // Approximate value per pip for precious metals
+            } else if (currencyPair === 'XBRUSD' || currencyPair === 'XTIUSD') {
+                // Oil - typically 2 decimal places
+                pipMultiplier = 100;
+                tickValue = 10; // Approximate value per pip for oil
+            } else if (currencyPair === 'XNGUSD') {
+                // Natural Gas - typically 3 decimal places
+                pipMultiplier = 1000;
+                tickValue = 10;
+            } else if (currencyPair.startsWith('US30') || currencyPair.startsWith('SPX500') || 
+                      currencyPair.startsWith('NAS100') || currencyPair.startsWith('UK100') ||
+                      currencyPair.startsWith('GER40') || currencyPair.startsWith('JPN225') ||
+                      currencyPair.startsWith('HK50') || currencyPair.startsWith('AUS200') ||
+                      currencyPair.startsWith('EU50') || currencyPair.startsWith('FRA40')) {
+                // Indices typically have fewer decimals
+                pipMultiplier = 1;
+                tickValue = 10; // Approximate value per point for indices
+            } else if (currencyPair.startsWith('BTC') || currencyPair.startsWith('ETH')) {
+                // Cryptocurrencies usually have more price movement
+                pipMultiplier = 1;
+                tickValue = 10; // Approximate value per point for crypto
+            }
+            
+            // Calculate pips/points at risk and profit potential
+            const isLong = entryPrice < takeProfit;
+            
+            let pipsAtRisk;
+            let pipsPotential;
+            
+            if (isLong) {
+                // Long position
+                pipsAtRisk = (entryPrice - stopLoss) * pipMultiplier;
+                pipsPotential = (takeProfit - entryPrice) * pipMultiplier;
+            } else {
+                // Short position
+                pipsAtRisk = (stopLoss - entryPrice) * pipMultiplier;
+                pipsPotential = (entryPrice - takeProfit) * pipMultiplier;
+            }
+            
+            // Standard lot size is 100,000 units of base currency for forex
+            const standardLot = 100000;
+            
+            // Calculate potential loss and profit based on lot size
+            const dollarPerPip = (lotSize * tickValue);
+            const potentialLoss = pipsAtRisk * dollarPerPip;
+            const potentialProfit = pipsPotential * dollarPerPip;
+            
+            // Calculate risk percentage
+            const riskPercentage = (potentialLoss / accountSize) * 100;
+            
+            // Calculate risk-to-reward ratio
+            const riskRewardRatio = potentialLoss > 0 ? (potentialProfit / potentialLoss).toFixed(2) : '0.00';
+            
+            // Update UI
+            document.getElementById('stopLossPips').textContent = `${pipsAtRisk.toFixed(1)}`;
+            document.getElementById('takeProfitPips').textContent = `${pipsPotential.toFixed(1)}`;
+            document.getElementById('potentialLoss').textContent = `${potentialLoss.toFixed(2)}`;
+            document.getElementById('potentialProfit').textContent = `${potentialProfit.toFixed(2)}`;
+            document.getElementById('riskPercentage').textContent = `${riskPercentage.toFixed(2)}%`;
+            document.getElementById('riskRewardRatio').textContent = `1:${riskRewardRatio}`;
+            
+            // Update risk bar (max 10%)
+            const riskBarPercentage = Math.min(riskPercentage, 10) * 10;
+            document.getElementById('riskBar').style.width = `${riskBarPercentage}%`;
+        }
+    </script>
+</body>
+</html>
